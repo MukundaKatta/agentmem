@@ -1,7 +1,21 @@
-"""agent-memory-kit: Lightweight, pluggable memory management for AI agents."""
+"""Public exports for agentmem."""
 
-from .memory import AgentMemory, AsyncAgentMemory
-from .consolidation import ConsolidationStrategy
+from .backends import BaseBackend, InMemoryBackend
+from .utils import (
+    MemoryEntry,
+    cosine_similarity,
+    estimate_tokens,
+    simple_text_embedding,
+    truncate_to_tokens,
+)
 
 __version__ = "0.1.0"
-__all__ = ["AgentMemory", "AsyncAgentMemory", "ConsolidationStrategy"]
+__all__ = [
+    "BaseBackend",
+    "InMemoryBackend",
+    "MemoryEntry",
+    "cosine_similarity",
+    "estimate_tokens",
+    "simple_text_embedding",
+    "truncate_to_tokens",
+]

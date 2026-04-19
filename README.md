@@ -1,27 +1,34 @@
 # agentmem
 
-A lightweight, pluggable memory management library for AI agents. Give your agents short-term, long-term, and semantic memory - without the complexity of a full framework.
+`agentmem` is a lightweight memory primitives library for AI agents, focused on storage backends, memory entries, token-aware utilities, and simple retrieval foundations without the overhead of a full framework.
 
-## Why agentmem?
+Memory is one of the hardest parts of building useful agent systems. Agents need a way to store context, retrieve relevant past interactions, and stay within token budgets without forcing every project into the same monolithic architecture. `agentmem` is aimed at that lower layer: practical building blocks you can compose into your own agent stack.
 
-As agentic AI systems become the norm in 2026, one of the biggest challenges is **memory management**. Agents need to remember context across conversations, recall relevant past interactions, and forget what's no longer useful - all without blowing up token budgets.
+## Why agentmem
 
-`agentmem` solves this with a simple, modular approach:
+Many agent libraries bundle memory into a larger framework. That can be convenient, but it can also make memory hard to reuse outside that ecosystem.
 
-- **Short-term memory** - sliding window buffer for recent context
-- **Long-term memory** - persistent storage with automatic summarization
-- **Semantic memory** - vector-based retrieval for finding relevant past interactions
-- **Memory consolidation** - automatically compress and merge old memories to save tokens
+`agentmem` takes a smaller and more modular approach:
 
-## Features
+- memory entry primitives with metadata
+- pluggable backend interfaces
+- a simple in-memory backend for fast iteration
+- token estimation and truncation helpers
+- lightweight embedding and similarity utilities for retrieval experiments
 
-- Drop-in memory management for any LLM-based agent
-- Built-in support for multiple storage backends (in-memory, SQLite, JSON files)
-- Semantic search using sentence embeddings
-- Automatic memory decay and consolidation
-- Token-aware memory trimming
-- Simple Python API with async support
-- Zero heavy dependencies for the core module
+## Current Status
+
+`agentmem` is currently an early-stage library.
+
+The repository already includes the core foundations for memory entries, backend abstractions, and utility helpers. Higher-level memory orchestration APIs are still planned, but the current package is best understood as a composable base layer rather than a full end-to-end memory framework.
+
+## What Is Available Today
+
+- `MemoryEntry` dataclass for storing content and metadata
+- `BaseBackend` abstract interface for memory storage implementations
+- `InMemoryBackend` for fast, ephemeral storage
+- token estimation and truncation utilities
+- cosine similarity and simple text embedding helpers
 
 ## Installation
 
@@ -40,100 +47,74 @@ pip install -e .
 ## Quick Start
 
 ```python
-from agent_memory_kit import AgentMemory
+from agent_memory_kit import InMemoryBackend, MemoryEntry
 
-# Create a memory instance
-memory = AgentMemory(
-    short_term_limit=20,
-    long_term_backend="sqlite",
-    enable_semantic=True
-)
+backend = InMemoryBackend()
 
-# Add memories
-memory.add("user", "My name is Alice and I work at Acme Corp.")
-memory.add("assistant", "Nice to meet you, Alice! How can I help you today?")
-memory.add("user", "I need help writing a Python script for data analysis.")
+backend.store(MemoryEntry(role="user", content="My name is Alice."))
+backend.store(MemoryEntry(role="assistant", content="Nice to meet you, Alice."))
+backend.store(MemoryEntry(role="user", content="I need help writing a Python script."))
 
-# Get recent context (short-term)
-recent = memory.get_recent(limit=5)
+recent = backend.retrieve(limit=2)
+matches = backend.search_by_content("python", top_k=3)
 
-# Search semantically across all memories
-results = memory.search("What company does the user work at?", top_k=3)
-
-# Get a consolidated summary of long-term memories
-summary = memory.get_summary()
-
-# Token-aware context building
-context = memory.build_context(max_tokens=4000)
+for entry in recent:
+    print(entry.role, entry.content)
 ```
 
-## Advanced Usage
-
-### Memory Consolidation
+## Utility Helpers
 
 ```python
-from agent_memory_kit import AgentMemory, ConsolidationStrategy
+from agent_memory_kit import estimate_tokens, simple_text_embedding, truncate_to_tokens
 
-memory = AgentMemory(
-    consolidation=ConsolidationStrategy.SUMMARIZE,
-    consolidation_threshold=50
-)
+text = "This is a long memory entry that may need trimming."
 
-memory.consolidate()
-```
-
-### Custom Storage Backend
-
-```python
-from agent_memory_kit import AgentMemory
-from agent_memory_kit.backends import SQLiteBackend
-
-backend = SQLiteBackend(db_path="my_agent_memory.db")
-memory = AgentMemory(backend=backend)
-```
-
-### Async Support
-
-```python
-from agent_memory_kit import AsyncAgentMemory
-
-memory = AsyncAgentMemory()
-await memory.add("user", "Hello!")
-results = await memory.search("greeting", top_k=5)
+token_estimate = estimate_tokens(text)
+trimmed = truncate_to_tokens(text, max_tokens=10)
+embedding = simple_text_embedding(text)
 ```
 
 ## Architecture
 
-```
+```text
 agentmem/
-  agent_memory_kit/
-    __init__.py          # Public API
-    memory.py            # Core AgentMemory class
-    backends/
-      __init__.py
-      base.py            # Abstract backend interface
-      in_memory.py       # In-memory storage (default)
-      sqlite_backend.py  # SQLite persistent storage
-      json_backend.py    # JSON file storage
-    semantic.py          # Semantic search module
-    consolidation.py     # Memory consolidation strategies
-    utils.py             # Token counting and helpers
+├── agent_memory_kit/
+│   ├── __init__.py          # Public exports
+│   ├── utils.py             # MemoryEntry + token and embedding helpers
+│   └── backends/
+│       ├── base.py          # Abstract backend interface
+│       └── in_memory.py     # In-memory storage backend
+├── setup.py
+└── README.md
 ```
+
+## Project Direction
+
+Over time, `agentmem` is intended to grow toward:
+
+- additional storage backends
+- higher-level memory managers
+- stronger retrieval strategies
+- practical consolidation and decay policies
+- easier integration into agent runtimes and workflow systems
+
+## Who This Is For
+
+- developers building their own agent runtime
+- teams that want reusable memory primitives without adopting a full framework
+- experimenters working on context management and retrieval behavior
+- anyone who wants a simpler starting point for agent memory systems
 
 ## Contributing
 
-Contributions are welcome! Here's how to get started:
+Contributions are welcome, especially around:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- backend implementations
+- retrieval quality improvements
+- memory lifecycle policies
+- tests and examples
+- documentation and developer experience
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-Built with inspiration from the agentic AI wave of 2026. Special thanks to the open-source AI community for pushing the boundaries of what agents can do.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
