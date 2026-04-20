@@ -11,9 +11,7 @@ setup(
     url="https://github.com/MukundaKatta/agentmem",
     packages=find_packages(),
     python_requires=">=3.9",
-    install_requires=[
-        "numpy>=1.24.0",
-    ],
+    install_requires=[],
     extras_require={
         "dev": ["pytest", "pytest-asyncio", "ruff"],
     },

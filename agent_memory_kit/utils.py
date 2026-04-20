@@ -15,7 +15,8 @@ class MemoryEntry:
     timestamp: float = field(default_factory=time.time)
     token_count: int = 0
     relevance_score: float = 1.0
-    tags: list = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
+    metadata: dict = field(default_factory=dict)
     entry_id: Optional[str] = None
 
     def __post_init__(self):
@@ -52,12 +53,11 @@ def truncate_to_tokens(text: str, max_tokens: int) -> str:
 
 def cosine_similarity(vec_a, vec_b) -> float:
     """Compute cosine similarity between two vectors."""
-    import numpy as np
-    a = np.array(vec_a, dtype=np.float32)
-    b = np.array(vec_b, dtype=np.float32)
-    dot = np.dot(a, b)
-    norm_a = np.linalg.norm(a)
-    norm_b = np.linalg.norm(b)
+    if len(vec_a) != len(vec_b):
+        raise ValueError("Vectors must have the same length.")
+    dot = sum(a * b for a, b in zip(vec_a, vec_b))
+    norm_a = sum(a * a for a in vec_a) ** 0.5
+    norm_b = sum(b * b for b in vec_b) ** 0.5
     if norm_a == 0 or norm_b == 0:
         return 0.0
     return float(dot / (norm_a * norm_b))
@@ -65,9 +65,8 @@ def cosine_similarity(vec_a, vec_b) -> float:
 
 def simple_text_embedding(text: str, dim: int = 128) -> list:
     """Generate a simple bag-of-characters embedding for text."""
-    import numpy as np
     text = text.lower().strip()
-    vec = np.zeros(dim, dtype=np.float32)
+    vec = [0.0] * dim
     for i, char in enumerate(text):
         idx = ord(char) % dim
         vec[idx] += 1.0 / (1 + i * 0.01)
@@ -79,7 +78,7 @@ def simple_text_embedding(text: str, dim: int = 128) -> list:
     for bigram in bigrams:
         bg_hash = hash(bigram) % dim
         vec[bg_hash] += 0.5
-    norm = np.linalg.norm(vec)
+    norm = sum(value * value for value in vec) ** 0.5
     if norm > 0:
-        vec = vec / norm
-    return vec.tolist()
+        vec = [value / norm for value in vec]
+    return vec
