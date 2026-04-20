@@ -27,6 +27,7 @@ The repository already includes the core foundations for memory entries, backend
 - `MemoryEntry` dataclass for storing content and metadata
 - `BaseBackend` abstract interface for memory storage implementations
 - `InMemoryBackend` for fast, ephemeral storage
+- `SQLiteBackend` for lightweight persistent local storage
 - token estimation and truncation utilities
 - cosine similarity and simple text embedding helpers
 
@@ -60,6 +61,21 @@ matches = backend.search_by_content("python", top_k=3)
 
 for entry in recent:
     print(entry.role, entry.content)
+```
+
+Persistent storage example:
+
+```python
+from agent_memory_kit import MemoryEntry, SQLiteBackend
+
+backend = SQLiteBackend("memories.db")
+backend.store(
+    MemoryEntry(
+        role="user",
+        content="Remember that I prefer concise status updates.",
+        metadata={"source": "profile"},
+    )
+)
 ```
 
 ## Utility Helpers
@@ -114,6 +130,20 @@ Contributions are welcome, especially around:
 - memory lifecycle policies
 - tests and examples
 - documentation and developer experience
+
+## Local Development
+
+Install the package with development dependencies:
+
+```bash
+pip install -e .[dev]
+```
+
+Run the test suite:
+
+```bash
+pytest
+```
 
 ## License
 
