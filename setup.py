@@ -1,4 +1,6 @@
-from setuptools import setup, find_packages
+from pathlib import Path
+
+from setuptools import find_packages, setup
 
 setup(
     name="agentmem",
@@ -6,7 +8,7 @@ setup(
     author="Mukunda Rao Katta",
     author_email="mukunda.vjcs6@gmail.com",
     description="Lightweight, pluggable memory management for AI agents",
-    long_description=open("README.md").read(),
+    long_description=Path("README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
     url="https://github.com/MukundaKatta/agentmem",
     packages=find_packages(),
