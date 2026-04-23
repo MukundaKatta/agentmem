@@ -1,7 +1,6 @@
 """Abstract base class for memory storage backends."""
 
 from abc import ABC, abstractmethod
-from typing import List, Optional
 
 from ..utils import MemoryEntry
 
@@ -15,17 +14,17 @@ class BaseBackend(ABC):
         ...
 
     @abstractmethod
-    def retrieve(self, limit: int = 10, offset: int = 0) -> List[MemoryEntry]:
+    def retrieve(self, limit: int = 10, offset: int = 0) -> list[MemoryEntry]:
         """Retrieve recent memory entries."""
         ...
 
     @abstractmethod
-    def search_by_content(self, query: str, top_k: int = 5) -> List[MemoryEntry]:
+    def search_by_content(self, query: str, top_k: int = 5) -> list[MemoryEntry]:
         """Search memories by text content."""
         ...
 
     @abstractmethod
-    def get_all(self) -> List[MemoryEntry]:
+    def get_all(self) -> list[MemoryEntry]:
         """Retrieve all stored memories."""
         ...
 

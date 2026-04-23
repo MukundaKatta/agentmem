@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import sqlite3
 from pathlib import Path
-from typing import List
 
 from .base import BaseBackend
 from ..utils import MemoryEntry
@@ -71,7 +70,7 @@ class SQLiteBackend(BaseBackend):
         )
         self._conn.commit()
 
-    def retrieve(self, limit: int = 10, offset: int = 0) -> List[MemoryEntry]:
+    def retrieve(self, limit: int = 10, offset: int = 0) -> list[MemoryEntry]:
         cursor = self._conn.execute(
             """
             SELECT * FROM memories
@@ -82,7 +81,7 @@ class SQLiteBackend(BaseBackend):
         )
         return [self._row_to_entry(row) for row in cursor.fetchall()]
 
-    def search_by_content(self, query: str, top_k: int = 5) -> List[MemoryEntry]:
+    def search_by_content(self, query: str, top_k: int = 5) -> list[MemoryEntry]:
         cursor = self._conn.execute(
             """
             SELECT * FROM memories
@@ -94,7 +93,7 @@ class SQLiteBackend(BaseBackend):
         )
         return [self._row_to_entry(row) for row in cursor.fetchall()]
 
-    def get_all(self) -> List[MemoryEntry]:
+    def get_all(self) -> list[MemoryEntry]:
         cursor = self._conn.execute(
             """
             SELECT * FROM memories
