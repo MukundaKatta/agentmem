@@ -2,6 +2,7 @@
 
 import re
 import time
+import uuid
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -23,7 +24,7 @@ class MemoryEntry:
         if self.token_count == 0:
             self.token_count = estimate_tokens(self.content)
         if self.entry_id is None:
-            self.entry_id = f"mem_{int(self.timestamp * 1000)}"
+            self.entry_id = f"mem_{uuid.uuid4().hex}"
 
 
 def estimate_tokens(text: str) -> int:
